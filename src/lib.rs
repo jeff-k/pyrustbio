@@ -1,33 +1,39 @@
-#![feature(proc_macro, specialization, const_fn)]
+#![feature(specialization)]
 
+#[macro_use]
 extern crate pyo3;
 extern crate bio;
 
+use bio::alignment::distance;
 use pyo3::prelude::*;
+//use bio::alignment::pairwise;
+//use bio::scores::blosum62::blosum62;
 
-use bio::alignment::distance::levenshtein;
-use bio::alignment::pairwise::Aligner;
-use bio::scores::blosum62::blosum62;
-
-#[py::modinit(_pyrustbio)]
-fn init(py: Python, m: &PyModule) -> PyResult<()> {
-
-    #[pyfn(m, "levenshtein")]
-    fn py_levenshtein(_py: Python, a: String, b: String) -> PyResult<(u32)> {
-        Ok(levenshtein(&(a.into_bytes()), &(b.into_bytes())))
-    }
-
-    #[pyfn(m, "affine")]
-    fn py_affine(_py: Python, q: String, r: String,
-                  gop: i32, gep: i32) -> PyResult<&PyList> {
-        let mut a = Aligner::with_capacity(q.len(), r.len(), gop, gep, &blosum62);
-        let (q_b, r_b) = (q.into_bytes(), r.into_bytes());
-        let alnmnt = a.semiglobal(&q_b, &r_b);
-
-        let t = [alnmnt.score.to_object(_py),
-                 alnmnt.pretty(&q_b, &r_b).to_object(_py)];
-        Ok(PyList::new(_py, &t))
-    }
-
+#[pymodule]
+fn pyrustbio(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Aligner>()?;
+    m.add_wrapped(wrap_function!(levenshtein))?;
     Ok(())
+}
+
+#[pyclass]
+struct Aligner {
+    b: bool,
+}
+
+#[pymethods]
+impl Aligner {
+    #[new]
+    fn __new__(obj: &PyRawObject, reference: String) -> PyResult<()> {
+        obj.init(|| Aligner { b: true })
+    }
+
+    fn affine(&self, _py: Python, query: String) -> PyResult<usize> {
+        Ok(0)
+    }
+}
+
+#[pyfunction]
+fn levenshtein(a: &str, b: &str) -> u32 {
+    distance::levenshtein(a.as_bytes(), b.as_bytes())
 }

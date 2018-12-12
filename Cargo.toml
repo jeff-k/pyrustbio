@@ -11,5 +11,5 @@ crate-type = ["cdylib"]
 bio = "*"
 
 [dependencies.pyo3]
-version = "0.2"
-default-features = false
+git = "https://github.com/PyO3/pyo3.git"
+features = ["extension-module"]
