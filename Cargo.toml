@@ -2,6 +2,7 @@
 name = "pyrustbio"
 version = "0.1.0"
 authors = ["jeff-k <jeff@x-0.ca>"]
+edition = "2018"
 
 [lib]
 name = "pyrustbio"
