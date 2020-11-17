@@ -15,8 +15,8 @@ struct Aligner {
 #[pymethods]
 impl Aligner {
     #[new]
-    fn new(obj: &PyRawObject) {
-        obj.init(Aligner { b: true });
+    fn new(b: bool) -> Self {
+        Aligner { b }
     }
 
     //    fn affine(&self, _py: Python, query: String) -> PyResult<usize> {
