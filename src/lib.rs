@@ -1,37 +1,18 @@
 extern crate bio;
 
+mod pairwise;
+
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-use bio::alignment::distance;
-//use bio::alignment::pairwise;
-//use bio::scores::blosum62::blosum62;
-
-#[pyclass]
-struct Aligner {
-    b: bool,
-}
-
-#[pymethods]
-impl Aligner {
-    #[new]
-    fn new(b: bool) -> Self {
-        Aligner { b }
-    }
-
-    //    fn affine(&self, _py: Python, query: String) -> PyResult<usize> {
-    //        Ok(0)
-    //    }
-}
-
-#[pyfunction]
-fn levenshtein(a: &str, b: &str) -> PyResult<u32> {
-    Ok(distance::levenshtein(a.as_bytes(), b.as_bytes()))
-}
+use crate::pairwise::{levenshtein, Aligner, Alignment, Scoring};
 
 #[pymodule]
 fn pyrustbio(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<Aligner>()?;
-    m.add_wrapped(wrap_pyfunction!(levenshtein))?;
+    let pairwise_module = PyModule::new(_py, "pairwise")?;
+    pairwise_module.add_class::<Aligner>()?;
+    pairwise_module.add_class::<Alignment>()?;
+    pairwise_module.add_class::<Scoring>()?;
+    //    pairwise_module.add_wrapped(wrap_pyfunction!(levenshtein))?;
     Ok(())
 }
