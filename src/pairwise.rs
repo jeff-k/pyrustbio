@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 
-use bio::alignment::distance;
 use bio::alignment::pairwise;
 
 #[pyclass]
@@ -82,9 +81,4 @@ impl Aligner {
             yend: 0,
         })
     }
-}
-
-#[pyfunction]
-pub fn levenshtein(a: &str, b: &str) -> PyResult<u32> {
-    Ok(distance::levenshtein(a.as_bytes(), b.as_bytes()))
 }
