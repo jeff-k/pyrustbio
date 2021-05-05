@@ -1,6 +1,6 @@
 [package]
 name = "pyrustbio"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["jeff-k <jeff@x-0.ca>"]
 edition = "2018"
 
@@ -9,7 +9,5 @@ name = "pyrustbio"
 crate-type = ["cdylib"]
 
 [dependencies]
-bio = "*"
-
-[dependencies.pyo3]
-features = ["extension-module"]
+bio = "0.34.0"
+pyo3 = { version = "0.13.2", features = ["extension-module"] }
