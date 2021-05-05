@@ -25,5 +25,7 @@ fn pyrustbio(_py: Python, m: &PyModule) -> PyResult<()> {
     distance_module
         .add_function(wrap_pyfunction!(levenshtein, distance_module)?)
         .unwrap();
+    m.add_submodule(pairwise_module)?;
+    m.add_submodule(distance_module)?;
     Ok(())
 }
