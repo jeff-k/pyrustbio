@@ -10,4 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 bio = "0.34.0"
+bio-types = "0.11.0"
 pyo3 = { version = "0.13.2", features = ["extension-module"] }

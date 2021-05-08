@@ -3,82 +3,68 @@ use pyo3::prelude::*;
 use bio::alignment::pairwise;
 
 #[pyclass]
-pub struct Scoring {
+pub struct Aligner {
+    match_score: i32,
+    mismatch_score: i32,
     gap_open: i32,
     gap_extend: i32,
-    //    match_fn: (),
-    //    match_scores: (),
-    xclip_prefix: i32,
-    xclip_suffix: i32,
-    yclip_prefix: i32,
-    yclip_suffix: i32,
-}
-
-#[pyclass]
-pub struct Aligner {
-    scoring: Scoring,
 }
 
 #[pyclass]
 pub struct Alignment {
-    score: i32,
-    xstart: i32,
-    xend: i32,
-    ystart: i32,
-    yend: i32,
-    //    operations: (),
+    x: Box<String>,
+    y: Box<String>,
+    aligned: bio_types::alignment::Alignment,
 }
 
 #[pymethods]
 impl Alignment {
-    fn str(&self) -> PyResult<String> {
-        Ok("".to_string())
+    fn __str__(&self) -> PyResult<String> {
+        Ok(self.aligned.pretty(self.x.as_bytes(), self.y.as_bytes()))
     }
 }
 
 #[pymethods]
 impl Aligner {
     #[new]
-    fn new(gap_open: i32, gap_extend: i32) -> Self {
+    fn new(match_score: i32, mismatch_score: i32, gap_open: i32, gap_extend: i32) -> Self {
         Aligner {
-            scoring: Scoring {
-                gap_open: 0,
-                gap_extend: 0,
-                xclip_prefix: 0,
-                xclip_suffix: 0,
-                yclip_prefix: 0,
-                yclip_suffix: 0,
-            },
+            match_score,
+            mismatch_score,
+            gap_open,
+            gap_extend,
         }
     }
 
-    fn global(&self, _py: Python, x: String, y: String) -> PyResult<Alignment> {
+    fn align(&self, _py: Python, a: String, b: String) -> PyResult<Alignment> {
+        let x = a.as_bytes();
+        let y = b.as_bytes();
+        let score = |a: u8, b: u8| {
+            if a == b {
+                self.match_score
+            } else {
+                self.mismatch_score
+            }
+        };
+        //        let scoring = pairwise::Scoring::new(self.gap_open, self.gap_extend, &score);
+        let mut aligner = pairwise::Aligner::with_capacity(
+            x.len(),
+            y.len(),
+            self.gap_open,
+            self.gap_extend,
+            score,
+        );
+
         Ok(Alignment {
-            score: 0,
-            xstart: 0,
-            xend: 0,
-            ystart: 0,
-            yend: 0,
+            x: Box::new(a.clone()),
+            y: Box::new(b.clone()),
+            aligned: aligner.global(x, y),
         })
     }
 
-    fn semiglobal(&self, _py: Python, x: String, y: String) -> PyResult<Alignment> {
-        Ok(Alignment {
-            score: 0,
-            xstart: 0,
-            xend: 0,
-            ystart: 0,
-            yend: 0,
-        })
-    }
+    //    fn semiglobal(&self, _py: Python, x: String, y: String) -> PyResult<Alignment> {
+    //    }
 
-    fn local(&self, _py: Python, x: String, y: String) -> PyResult<Alignment> {
-        Ok(Alignment {
-            score: 0,
-            xstart: 0,
-            xend: 0,
-            ystart: 0,
-            yend: 0,
-        })
-    }
+    //    fn local(&self, _py: Python, x: String, y: String) -> PyResult<Alignment> {
+    //    }
 }
